@@ -1,0 +1,37 @@
+{
+    "name": "hediet/contracts",
+    "type": "library",
+    "description": "A library which helps to specify, check and reflect code contracts.",
+    "keywords": ["code", "contract", "assert", "assertion", "validation", "argument", "exception", "precondition", "invariant"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Henning Dieterichs",
+            "email": "henning.dieterichs@hediet.de",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "henning.dieterichs@hediet.de",
+        "source": "https://bitbucket.org/hediet/php-contracts"
+    },
+    "autoload": {
+        "psr-0": { "Hediet" : "src/"}
+    },
+    "archive": {
+        "exclude": ["/nbproject"]
+    },
+    
+    
+    "require": {
+        "php": ">=5.3.0",
+        "nikic/php-parser": "*"
+    },
+    
+    "require-dev": {
+        "nunzion/composer-devlinks": "^0.2"
+    },
+    "scripts": {
+        "post-autoload-dump": "Nunzion\\Composer\\DevLinks\\Commands::includeLinkedAutoloaders"
+    }
+}
