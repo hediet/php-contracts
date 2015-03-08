@@ -2,7 +2,7 @@ PHP Contracts - A Powerfull Assertion Library for PHP
 =====================================================
 
 PHP Contracts is an assertion library for PHP to validate arguments and invariants.
-This library aims to replace my library [nunzion/php-expect](https://bitbucket.org/nunzion/php-expect) in the long term.
+This library aims to replace my library [nunzion/php-expect](https://bitbucket.org/nunzion/php-expect).
 
 Warning
 -------
@@ -49,7 +49,7 @@ The following code will throw an `\InvalidArgumentException` with the message `A
 sum(1, "test");
 ```
 
-### Explicit Supported Tests
+### Explicitly Supported Tests
 
 Currently PHP Contracts understands the following conditions:
 * All is_TYPE functions for TYPE being a primitive.
