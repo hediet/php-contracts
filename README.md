@@ -1,4 +1,4 @@
-PHP Contracts - A Powerfull Assertion Library for PHP
+PHP Contracts - A Powerful Assertion Library for PHP
 =====================================================
 
 PHP Contracts is an assertion library for PHP to validate arguments and invariants.

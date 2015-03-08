@@ -30,8 +30,7 @@
     },
     
     "require-dev": {
-        "nunzion/composer-devlinks": "^0.2",
-        "nette/tester": "*"
+        "nunzion/composer-devlinks": "^0.2"
     },
     "scripts": {
         "post-autoload-dump": "Nunzion\\Composer\\DevLinks\\Commands::includeLinkedAutoloaders"
