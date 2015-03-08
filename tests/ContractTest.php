@@ -79,6 +79,7 @@ class ContractTest extends PHPUnit_Framework_TestCase
         $this->executePrimitiveTypeAssertionTest('is_integer($arg0)', array("string"), "integer", "string");
         $this->executePrimitiveTypeAssertionTest('is_long($arg0)', array("string"), "integer", "string");
         $this->executePrimitiveTypeAssertionTest('is_null($arg0)', array("string"), "null", "string");
+        $this->executePrimitiveTypeAssertionTest('$arg0 === null', array("string"), "null", "string");
         $this->executePrimitiveTypeAssertionTest('is_object($arg0)', array("string"), "object", "string");
         $this->executePrimitiveTypeAssertionTest('is_resource($arg0)', array("string"), "resource", "string");
         $this->executePrimitiveTypeAssertionTest('is_string($arg0)', array(1), "string", "integer");
@@ -123,20 +124,9 @@ class ContractTest extends PHPUnit_Framework_TestCase
         $this->executeTest('\Hediet\Contract::requires(\Hediet\Contract\Helper::isArray($arg0, "string"))',
                 array("string"), "string[]", "string");
     }
-
-    
-    private function foo($a, $b)
-    {
-        Contract::requires(0 < $a && (is_int($a) || is_float($a)) && $b < $a);
-    }
-    
-    public function testMe()
-    {
-        $this->foo("test", 200);
-    }
-    
     
 }
+
 
 class Test
 {
