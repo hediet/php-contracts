@@ -8,6 +8,13 @@ use UnexpectedValueException;
 
 class Contract
 {
+    /**
+     * Throws an appropriate exception if the condition is false.
+     * 
+     * @param type $condition
+     * @param type $args
+     * @return type
+     */
     public static function requires($condition, $args = array())
     {
         if ($condition)

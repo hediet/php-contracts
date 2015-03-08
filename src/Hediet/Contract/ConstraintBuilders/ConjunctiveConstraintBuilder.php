@@ -2,7 +2,7 @@
 
 namespace Hediet\Contract\ConstraintBuilders;
 
-use Hediet\Contract\Constraints\DisjunctiveConstraint;
+use Hediet\Contract\Constraints\ConjunctiveConstraint;
 use Hediet\Contract\Expressions\ExpressionBuilder;
 use PhpParser\Node\Expr;
 

@@ -19,22 +19,22 @@ class NumericRangeConstraintBuilder extends ConstraintBuilder
             $left = $builder->buildExpression($expression->left);
             $right = $builder->buildExpression($expression->right);
 
-            if ($expression instanceof Greater) // left > right
+            $isGreater = ($expression instanceof Greater) || ($expression instanceof GreaterOrEqual);
+            $isInclusive = ($expression instanceof GreaterOrEqual) || ($expression instanceof SmallerOrEqual);
+            
+            if (count($left->getContainedVariables()) === 0 && count($right->getContainedVariables()) > 0)
             {
-                return new NumericRangeConstraint($left, $right, false);
+                //swap "1 < $a" to "$a > 1"
+                $l = $left;
+                $left = $right;
+                $right = $l;
+                $isGreater = !$isGreater;
             }
-            else if ($expression instanceof GreaterOrEqual) // left >= right
-            {
-                return new NumericRangeConstraint($left, $right, true);
-            }
-            else if ($expression instanceof Smaller) // left < right
-            {
-                return new NumericRangeConstraint($left, null, false, $right, false);
-            }
-            else if ($expression instanceof SmallerOrEqual) // left <= right
-            {
-                return new NumericRangeConstraint($left, null, false, $right, true);
-            }
+            
+            if ($isGreater)
+                return new NumericRangeConstraint($left, $right, $isInclusive);
+            else
+                return new NumericRangeConstraint($left, null, false, $right, $isInclusive);
         }
 
         return null;

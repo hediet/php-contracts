@@ -3,6 +3,7 @@
 namespace Hediet\Contract\Constraints;
 
 use Hediet\Contract\EvaluationContext;
+use Hediet\Contract\Helper\LanguageHelper;
 
 class ConjunctiveConstraint extends AggregatedConstraint
 {
@@ -12,7 +13,18 @@ class ConjunctiveConstraint extends AggregatedConstraint
      */
     public function getViolationMessage(EvaluationContext $context)
     {
-        // TODO: Implement getViolationMessage() method.
+        $parts = array();
+        
+        foreach ($this->getConstraints() as $c)
+        {
+            if ($c->isViolated($context))
+            {
+                $parts[] = $c->getViolationMessage($context);
+            }
+        }
+        
+        $result = LanguageHelper::joinSentences($parts);
+        return $result;
     }
 
     public function isViolated(EvaluationContext $context)

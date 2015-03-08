@@ -30,7 +30,7 @@ class ConstantExpression extends Expression
         return array();
     }
 
-    public function __toString()
+    public function toString()
     {
         return (string)$this->value;
     }

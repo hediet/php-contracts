@@ -3,6 +3,7 @@
 namespace Hediet\Contract;
 
 use Hediet\Contract\ConstraintBuilders\ComposedConstraintBuilder;
+use Hediet\Contract\ConstraintBuilders\ConjunctiveConstraintBuilder;
 use Hediet\Contract\ConstraintBuilders\DisjunctiveConstraintBuilder;
 use Hediet\Contract\ConstraintBuilders\NumericRangeConstraintBuilder;
 use Hediet\Contract\ConstraintBuilders\TypeConstraintBuilder;
@@ -10,9 +11,10 @@ use Hediet\Contract\Constraints\ConjunctiveConstraint;
 use Hediet\Contract\Constraints\Constraint;
 use Hediet\Contract\ConstraintsProcessors\ComposedConstraintsProcessor;
 use Hediet\Contract\ConstraintsProcessors\DisjunctiveTypeConstraintProcessor;
+use Hediet\Contract\ConstraintsProcessors\NumericRangeConstraintProcessor;
+use Hediet\Contract\ConstraintsProcessors\ResolveConjunctiveConstraintProcessor;
 use Hediet\Contract\Expressions\ExpressionBuilder;
 use Hediet\Contract\Helper\FindNodesInLineVisitor;
-use ImagickException;
 use InvalidArgumentException;
 use Nunzion\StackTrace\CallFrames\InstanceMethodCallFrame;
 use Nunzion\StackTrace\StackTrace;
@@ -62,6 +64,7 @@ class ContractSystem
         $constraintBuilder->addConstraintBuilder(new TypeConstraintBuilder());
         $constraintBuilder->addConstraintBuilder(new NumericRangeConstraintBuilder());
         $constraintBuilder->addConstraintBuilder(new DisjunctiveConstraintBuilder($constraintBuilder));
+        $constraintBuilder->addConstraintBuilder(new ConjunctiveConstraintBuilder($constraintBuilder));
 
         $expressionBuilder = new ExpressionBuilder();
         $constraint = $constraintBuilder->getConstraint($expression, $expressionBuilder);
@@ -69,7 +72,9 @@ class ContractSystem
         $constraints = array($constraint);
 
         $processors = array();
+        $processors[] = new ResolveConjunctiveConstraintProcessor();
         $processors[] = new DisjunctiveTypeConstraintProcessor();
+        $processors[] = new NumericRangeConstraintProcessor();
         $processor = new ComposedConstraintsProcessor($processors);
 
         $constraints = $processor->processConstraints($constraints);

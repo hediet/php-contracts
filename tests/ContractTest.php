@@ -107,15 +107,35 @@ class ContractTest extends PHPUnit_Framework_TestCase
         
         $this->executeTest('$arg0 > $arg1', array(1, 2), "\InvalidArgumentException", 
                 "Argument 'arg0' must be greater than argument 'arg1', but 'arg0' is 1 and 'arg1' is 2.");
-        
     }
     
-    public function t2estArrayTest()
+    public function testNumericRangeWithAnd()
+    {
+        $this->executeTest('$arg0 > 1 && $arg0 < 5', array(1, 2), "\InvalidArgumentException", 
+                "Argument 'arg0' must be greater than '1' and less than '5', but is 1.");
+        
+        $this->executeTest('1 < $arg0 && $arg0 < 5', array(1, 2), "\InvalidArgumentException", 
+                "Argument 'arg0' must be greater than '1' and less than '5', but is 1.");
+    }
+    
+    public function testArrayTest()
     {
         $this->executeTest('\Hediet\Contract::requires(\Hediet\Contract\Helper::isArray($arg0, "string"))',
                 array("string"), "string[]", "string");
     }
 
+    
+    private function foo($a, $b)
+    {
+        Contract::requires(0 < $a && (is_int($a) || is_float($a)) && $b < $a);
+    }
+    
+    public function testMe()
+    {
+        $this->foo("test", 200);
+    }
+    
+    
 }
 
 class Test

@@ -87,24 +87,16 @@ class NumericRangeConstraint extends Constraint
     public function getViolationMessage(EvaluationContext $context)
     {
         // Contract::require($a >= 4 && $a < 10);
-        // Argument 'a' must be greater than or equal to 4 and less than 10, but is 2.
+        // argument 'a' must be greater than or equal to 4 and less than 10, but is 2
 
         // Contract::require($a >= $b);
-        // Argument 'a' must be greater than or equal to argument 'b', but 'a' is 2 and 'b' is 4.
+        // argument 'a' must be greater than or equal to argument 'b', but 'a' is 2 and 'b' is 4
 
         // Contract::require($a >= $b + 1);
-        // For argument 'a' and 'b', 'a' must be greater than or equal to 'b + 1', but 'a' is 2 and 'b + 1' is 4.
+        // for argument 'a' and 'b', 'a' must be greater than or equal to 'b + 1', but 'a' is 2 and 'b + 1' is 4
 
         // Contract::require(count($a) > 0);
-        // For argument 'a', 'count($a)' must be greater than 0, but is 0.
-
-        $butIs = "";
-        $actualValue = $this->getTarget()->evaluate($context);
-
-        if (Expression::hasValue($actualValue))
-        {
-            $butIs = ", but is '$actualValue'";
-        }
+        // for argument 'a', 'count($a)' must be greater than 0, but is 0
 
         $start = "";
         if ($this->target instanceof ParameterVariableExpression)
@@ -136,6 +128,9 @@ class NumericRangeConstraint extends Constraint
             if ($this->minInclusive)
                 $body .= "or equal to ";
 
+            if ($this->min instanceof ParameterVariableExpression)
+                $body .= "argument ";
+            
             $body .= "'" . $this->min->__toString() . "'";
             $needsAnd = true;
         }
@@ -149,12 +144,15 @@ class NumericRangeConstraint extends Constraint
             }
 
             if ($needsAnd)
-                $body .= " and";
+                $body .= " and ";
 
             $body .= "less than ";
             if ($this->maxInclusive)
                 $body .= "or equal to ";
 
+            if ($this->max instanceof ParameterVariableExpression)
+                $body .= "argument ";
+            
             $body .= "'" . $this->max->__toString() . "'";
         }
 
@@ -184,9 +182,7 @@ class NumericRangeConstraint extends Constraint
             }
         }
 
-        $body .= ".";
-
-        return $body;
+        return $body . ".";
     }
 
     /**
@@ -218,7 +214,7 @@ class NumericRangeConstraint extends Constraint
         }
         if ($this->max !== null)
         {
-            $maxVal = $this->min->evaluate($context);
+            $maxVal = $this->max->evaluate($context);
             if (!Expression::hasValue($maxVal))
             {
                 $result = null;

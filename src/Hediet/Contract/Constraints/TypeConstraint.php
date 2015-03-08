@@ -83,11 +83,11 @@ class TypeConstraint extends Constraint
     public function isViolated(EvaluationContext $context)
     {
         $result = $this->getTarget()->evaluate($context);
-        if (!VariableExpression::hasValue($result))
+        if (!Expression::hasValue($result))
         {
             return null;
         }
 
-        return $this->getRequiredType()->isAssignableFromValue($result);
+        return !$this->getRequiredType()->isAssignableFromValue($result);
     }
 }

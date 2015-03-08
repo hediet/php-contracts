@@ -3,7 +3,6 @@
 namespace Hediet\Contract\Constraints;
 
 use Hediet\Contract\EvaluationContext;
-use Hediet\Contract\Expressions\VariableExpression;
 
 class DisjunctiveConstraint extends AggregatedConstraint
 {
@@ -13,7 +12,7 @@ class DisjunctiveConstraint extends AggregatedConstraint
      */
     public function getViolationMessage(EvaluationContext $context)
     {
-        // TODO: Implement getViolationMessage() method.
+        return "Contract failed.";
     }
 
     public function isViolated(EvaluationContext $context)

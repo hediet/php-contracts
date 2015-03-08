@@ -36,14 +36,14 @@ class VariableExpression extends Expression
         return array($this->getHash() => $this);
     }
 
-    public function __toString()
+    public function toString()
     {
-        return '$' . $this->getName();
+        return $this->getName();
     }
 
     public function getHash()
     {
-        return $this->__toString();
+        return '$' . $this->__toString();
     }
 
 }

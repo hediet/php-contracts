@@ -35,5 +35,10 @@ abstract class Expression
      */
     public abstract function getContainedVariables();
 
-    public abstract function __toString();
+    public abstract function toString();
+    
+    public function __toString()
+    {
+        return $this->toString();
+    }
 }
