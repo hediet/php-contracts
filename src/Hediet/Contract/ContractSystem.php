@@ -2,11 +2,20 @@
 
 namespace Hediet\Contract;
 
+use Hediet\Contract\ConstraintBuilders\ComposedConstraintBuilder;
+use Hediet\Contract\ConstraintBuilders\DisjunctiveConstraintBuilder;
+use Hediet\Contract\ConstraintBuilders\NumericRangeConstraintBuilder;
+use Hediet\Contract\ConstraintBuilders\TypeConstraintBuilder;
+use Hediet\Contract\Constraints\ConjunctiveConstraint;
 use Hediet\Contract\Constraints\Constraint;
-use Hediet\Contract\Constraints\TypeConstraint;
-use Hediet\Contract\Expressions\ParameterVariableExpression;
+use Hediet\Contract\ConstraintsProcessors\ComposedConstraintsProcessor;
+use Hediet\Contract\ConstraintsProcessors\DisjunctiveTypeConstraintProcessor;
+use Hediet\Contract\Expressions\ExpressionBuilder;
 use Hediet\Contract\Helper\FindNodesInLineVisitor;
-use Hediet\Types\Type;
+use ImagickException;
+use InvalidArgumentException;
+use Nunzion\StackTrace\CallFrames\InstanceMethodCallFrame;
+use Nunzion\StackTrace\StackTrace;
 use PhpParser\Lexer;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\StaticCall;
@@ -22,18 +31,23 @@ class ContractSystem
         $expr = $this->getViolatedCondition();
         $constraint = $this->getConstraint($expr);
 
-        $argsAndObject = $this->getArgsAndObject();
-        $reflectionFunction = new \ReflectionMethod($argsAndObject["class"], $argsAndObject["function"]);
-        $args = array();
-        foreach ($reflectionFunction->getParameters() as $idx => $p)
-            $args[$p->getName()] = $argsAndObject["args"][$idx];
+        if ($constraint === null)
+        {
+            $message = "Contract failed.";
+        }
+        else
+        {
+            $trace = $this->getFilteredStackTrace();
+            $frame = $trace->getCallFrame(1);
+            $target = ($frame instanceof InstanceMethodCallFrame) 
+                    ? $frame->getTargetObject() : null;
+
+            $context = new EvaluationContext($frame->getArgumentsByName(), $target);
+
+            $message = $constraint->getViolationMessage($context);
+        }
         
-        $context = new EvaluationContext($args, $argsAndObject["object"]);
-
-        $message = $constraint->getViolationMessage($context);
-
-        throw new \InvalidArgumentException($message);
-
+        throw new InvalidArgumentException($message);
     }
 
 
@@ -43,95 +57,64 @@ class ContractSystem
      */
     private function getConstraint(Expr $expression)
     {
-        if ($expression instanceof Expr\FuncCall)
-        {
-            
-            $typeChecks = array("array", "bool", "callable", "double", "float", "int", "integer", "null", 
-                "object", "resource", "string");
-            
-            $functionName = $expression->name->toString();
-            if (substr($functionName, 0, 3) === "is_")
-            {
-                $typeName = substr($functionName, 3);
-                if (in_array($typeName, $typeChecks))
-                {
-                    $targetExpr = null;
-                    $innerExpression = $expression->args[0]->value;
+        $constraintBuilder = new ComposedConstraintBuilder();
 
-                    if ($innerExpression instanceof Expr\Variable)
-                    {
-                        $targetExpr = new ParameterVariableExpression($innerExpression->name);
-                    }
+        $constraintBuilder->addConstraintBuilder(new TypeConstraintBuilder());
+        $constraintBuilder->addConstraintBuilder(new NumericRangeConstraintBuilder());
+        $constraintBuilder->addConstraintBuilder(new DisjunctiveConstraintBuilder($constraintBuilder));
 
-                    return new TypeConstraint(Type::of($typeName), $targetExpr);
-                }
-            }
-        }
+        $expressionBuilder = new ExpressionBuilder();
+        $constraint = $constraintBuilder->getConstraint($expression, $expressionBuilder);
+
+        $constraints = array($constraint);
+
+        $processors = array();
+        $processors[] = new DisjunctiveTypeConstraintProcessor();
+        $processor = new ComposedConstraintsProcessor($processors);
+
+        $constraints = $processor->processConstraints($constraints);
+
+        if (count($constraints) === 1)
+            return $constraints[0];
+        else
+            return new ConjunctiveConstraint($constraints);
     }
 
 
+    private function getFilteredStackTrace()
+    {
+        $trace = StackTrace::create()
+                ->excludeCallsFromNamespace("Hediet\\Contract")
+                ->excludeCallsFromClass("Hediet\\Contract")
+                ->resolveArgumentNames();
+        return $trace;
+    }
+    
     /**
      * @return Expr
      */
     private function getViolatedCondition()
     {
-        $position = $this->getViolatedConditionPosition();
-        $file = $position["file"];
-        $line = (int)$position["line"];
-        $fileContent = file_get_contents($file);
-        $lines = explode("\n", $fileContent);
-        
-        $visitor = new FindNodesInLineVisitor($line);
+        $trace = $this->getFilteredStackTrace();
+        $frame = $trace->getCallFrame(0);
+
+        $visitor = new FindNodesInLineVisitor($frame->getLine());
         $traverser = new NodeTraverser();
         $traverser->addVisitor(new NameResolver());
         $traverser->addVisitor($visitor);
 
         $parser = new Parser(new Lexer());
-        $parseResult = $parser->parse($fileContent);
+        $parseResult = $parser->parse($frame->getSource()->getContent());
         $traverser->traverse($parseResult);
 
         $foundItems = $visitor->getResult();
 
         $nodeDumper = new NodeDumper();
 
-
         /* @var $item StaticCall */
         $item = $foundItems[0];
         $arg = $item->args[0]->value;
-        return $arg;
-    }
-
-    private function getArgsAndObject()
-    {
-        $trace = debug_backtrace();
-        $methodCount = 0;
-        $ignoredClasses = array(get_class($this), "Hediet\\Contract");
-        while (isset($trace[$methodCount]["class"])
-            && in_array($trace[$methodCount]["class"], $ignoredClasses)) {
-            $methodCount++;
-        }
-        $methodCount--;
-        $callersCallerStackFrame = null;
-        if (isset($trace[$methodCount + 1]))
-            $callersCallerStackFrame = $trace[$methodCount + 1];
         
-        return $callersCallerStackFrame;
-    }
-    
-    /**
-     * @return array an array with keys "line" and "file"
-     */
-    private function getViolatedConditionPosition()
-    {        
-        $trace = debug_backtrace();
-        $methodCount = 0;
-        $ignoredClasses = array(get_class($this), "Hediet\\Contract");
-        while (isset($trace[$methodCount]["class"])
-            && in_array($trace[$methodCount]["class"], $ignoredClasses)) {
-            $methodCount++;
-        }
-        $methodCount--;
-        $callerStackFrame = $trace[$methodCount];
-        return array("file" => $callerStackFrame["file"], "line" => $callerStackFrame["line"]);
+        return $arg;
     }
 }

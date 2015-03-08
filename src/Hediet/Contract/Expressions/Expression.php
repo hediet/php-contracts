@@ -6,7 +6,6 @@ use Hediet\Contract\EvaluationContext;
 
 abstract class Expression
 {
-
     private static $noValue;
 
     public static function getNoValue()
@@ -21,13 +20,20 @@ abstract class Expression
     {
         return $value !== self::getNoValue();
     }
-    
+
+    public abstract function getHash();
+
+    public function equals(Expression $other)
+    {
+        return $this->getHash() === $other->getHash();
+    }
+
     public abstract function evaluate(EvaluationContext $context);
 
     /**
-     * @return VariableExpression[]
+     * @return VariableExpression[] indexed by their hash
      */
-    public abstract function getVariableExpressions();
+    public abstract function getContainedVariables();
 
     public abstract function __toString();
 }

@@ -25,11 +25,13 @@
     
     "require": {
         "php": ">=5.3.0",
-        "nikic/php-parser": "*"
+        "nikic/php-parser": "*",
+        "nunzion/stacktrace": "dev-master"
     },
     
     "require-dev": {
-        "nunzion/composer-devlinks": "^0.2"
+        "nunzion/composer-devlinks": "^0.2",
+        "nette/tester": "*"
     },
     "scripts": {
         "post-autoload-dump": "Nunzion\\Composer\\DevLinks\\Commands::includeLinkedAutoloaders"

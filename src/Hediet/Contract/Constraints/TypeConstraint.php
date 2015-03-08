@@ -5,6 +5,7 @@ namespace Hediet\Contract\Constraints;
 use Hediet\Contract\EvaluationContext;
 use Hediet\Contract\Expressions\Expression;
 use Hediet\Contract\Expressions\ParameterVariableExpression;
+use Hediet\Contract\Expressions\VariableExpression;
 use Hediet\Types\Type;
 
 class TypeConstraint extends Constraint
@@ -15,7 +16,7 @@ class TypeConstraint extends Constraint
     private $requiredType;
 
     /**
-     * @var \Hediet\Contract\Expressions\Expression
+     * @var Expression
      */
     private $target;
 
@@ -39,11 +40,26 @@ class TypeConstraint extends Constraint
     }
 
 
+    /**
+     * @return VariableExpression[string]
+     */
+    public function getReferencedVariables()
+    {
+        return $this->target->getContainedVariables();
+    }
+    
+    
     public function getViolationMessage(EvaluationContext $context)
     {
+        //  Argument 'a' must be of type '{expected}', but is of type '{actual}'.
+        //  For Argument 'a', the value of '$a->getName()' must be of type '{expected}'.
+
+
         $butIs = "";
         $actualValue = $this->getTarget()->evaluate($context);
-        if (Expression::hasValue($actualValue)) {
+        
+        if (Expression::hasValue($actualValue)) 
+        {
             $actualType = Type::byValue($actualValue);
 
             $butIs = ", but is of type '{$actualType->getName()}'";
@@ -58,8 +74,20 @@ class TypeConstraint extends Constraint
         $body = $start . " must be of type '" . $this->getRequiredType()->getName() . "'" . $butIs . ".";
 
         return $body;
+    }
 
-        //  Argument 'a' must be of type '{expected}', but is of type '{actual}'.
-        //  For Argument 'a', the value of '$a->getName()' must be of type '{expected}'.
+    /**
+     * @param EvaluationContext $context
+     * @return boolean|null
+     */
+    public function isViolated(EvaluationContext $context)
+    {
+        $result = $this->getTarget()->evaluate($context);
+        if (!VariableExpression::hasValue($result))
+        {
+            return null;
+        }
+
+        return $this->getRequiredType()->isAssignableFromValue($result);
     }
 }

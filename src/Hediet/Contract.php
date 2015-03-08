@@ -49,21 +49,4 @@ class ContractReflector
 
 
 
-
-class ArrayConstraint
-{
-    private $elementConstraint;
-}
-
-
-class StringLengthConstraint
-{
-    
-}
-
-class NumericRangeConstraint
-{
-    
-}
- 
  */

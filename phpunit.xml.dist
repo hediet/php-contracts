@@ -2,7 +2,11 @@
 
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="http://raw.github.com/sebastianbergmann/phpunit/master/phpunit.xsd"
-         backupGlobals="false"
+         backupGlobals="false" 
          bootstrap="vendor/autoload.php">
-        
+<filter>
+  <blacklist>
+    <directory suffix=".php">vendor</directory>
+  </blacklist>
+</filter>
 </phpunit>

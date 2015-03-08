@@ -31,13 +31,19 @@ class VariableExpression extends Expression
     /**
      * @return VariableExpression[]
      */
-    public function getVariableExpressions()
+    public function getContainedVariables()
     {
-        return array($this);
+        return array($this->getHash() => $this);
     }
 
     public function __toString()
     {
         return '$' . $this->getName();
     }
+
+    public function getHash()
+    {
+        return $this->__toString();
+    }
+
 }
