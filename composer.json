@@ -25,8 +25,9 @@
     
     "require": {
         "php": ">=5.3.0",
-        "nikic/php-parser": "*",
-        "nunzion/stacktrace": "dev-master"
+        "nikic/php-parser": "^1.1.0",
+        "nunzion/stacktrace": "dev-master",
+        "hediet/type-reflection": "dev-master"
     },
     
     "require-dev": {
