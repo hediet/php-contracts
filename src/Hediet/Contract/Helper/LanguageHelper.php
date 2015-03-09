@@ -4,7 +4,7 @@ namespace Hediet\Contract\Helper;
 
 class LanguageHelper
 {
-    public static function joinWithAnd(array $parts)
+    public static function join(array $parts, $lastConnector)
     {
         $i = count($parts);
         $result = "";
@@ -14,7 +14,7 @@ class LanguageHelper
             if ($result === "")
                 $result = $p;
             else if ($i === 0)
-                $result = $result . " and " . $p;
+                $result = $result . " " . $lastConnector . " " . $p;
             else
                 $result = $result . ", " .$p;
         }
@@ -22,7 +22,7 @@ class LanguageHelper
         return $result;
     }
     
-    public static function joinSentences(array $sentences)
+    public static function joinSentences(array $sentences, $connector = "and")
     {
         $items = array();
         $isFirst = true;
@@ -39,6 +39,6 @@ class LanguageHelper
             $items[] = $sentence;
         }
         
-        return self::joinWithAnd($items) . ".";
+        return self::join($items, $connector) . ".";
     }
 }

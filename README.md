@@ -29,17 +29,15 @@ Usage
 -----
 
 Using this library is as simple as calling `Contract::requires` with an arbitrary condition:
-
 ``` php
-
 use Hediet\Contract;
 
 function sum($a, $b)
 {
     Contract::requires(is_int($a) && is_int($b));
 }
-
 ```
+
 
 If the specified condition evaluates to `false`, PHP Contracts analyzes the condition and throws
 an exception with an appropriate error message.
@@ -60,6 +58,45 @@ Currently PHP Contracts understands the following conditions:
 
 However, currently all expressions must be constants or arguments.
 
+### Examples
+
+``` php
+
+public function intArgumentsProvider() { return array(array(7, 1)); }
+
+/**
+ * @dataProvider intArgumentsProvider
+ * @expectedException \InvalidArgumentException
+ * @expectedExceptionMessage Argument 'a' must be greater than '1' 
+ * and less than or equal to argument 'b', but 'a' is 7 and 'b' is 1.
+ */
+public function testExampleRange($a, $b)
+{
+    Contract::requires(1 < $a && $a <= $b);
+}
+
+/**
+ * @dataProvider intArgumentsProvider
+ * @expectedException \InvalidArgumentException
+ * @expectedExceptionMessage Argument 'a' must be of type 'null|string', but is of type 'integer'.
+ */
+public function testExampleUnionType($a)
+{
+    Contract::requires($a === null || is_string($a));
+}
+
+/**
+ * @dataProvider intArgumentsProvider
+ * @expectedException \InvalidArgumentException
+ * @expectedExceptionMessage Argument 'a' must be greater than '10', 
+ * but is 7 or argument 'a' must be of type 'null', but is of type 'integer'.
+ */
+public function testExample4($a)
+{
+    Contract::requires(($a === null) || ($a > 10));
+}
+```
+
 Internals
 ---------
 If the condition evaluates to `true`, the requires method returns immediately. 
@@ -78,7 +115,8 @@ Todos
 * Support various array tests.
 * Throw an invariant exception if no argument is referenced in the condition.
 * Use optionally provided values to evaluate expressions which uses variables that are neither arguments nor `$this`.
-* Add a reflection API which parses the first `Contract::requires` calls and returns their corresponding constraints.
+* Add a reflection API which parses the first `Contract::requires` calls of a method and returns their corresponding constraints.
+  This enables propagating constraints to the UI.
 
 Author
 ------

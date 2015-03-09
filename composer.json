@@ -13,7 +13,7 @@
     ],
     "support": {
         "email": "henning.dieterichs@hediet.de",
-        "source": "https://bitbucket.org/hediet/php-contracts"
+        "source": "https://github.com/hediet/php-contracts"
     },
     "autoload": {
         "psr-0": { "Hediet" : "src/"}

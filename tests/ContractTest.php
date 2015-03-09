@@ -119,7 +119,7 @@ class ContractTest extends PHPUnit_Framework_TestCase
                 "Argument 'arg0' must be greater than '1' and less than '5', but is 1.");
     }
     
-    public function testArrayTest()
+    public function te2stArrayTest()
     {
         $this->executeTest('\Hediet\Contract::requires(\Hediet\Contract\Helper::isArray($arg0, "string"))',
                 array("string"), "string[]", "string");

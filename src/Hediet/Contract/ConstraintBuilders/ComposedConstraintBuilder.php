@@ -29,7 +29,8 @@ class ComposedConstraintBuilder extends ConstraintBuilder
 
     public function getConstraint(Expr $expression, ExpressionBuilder $builder)
     {
-        foreach ($this->constraintBuilders as $constraintBuilder) {
+        foreach ($this->constraintBuilders as $constraintBuilder) 
+        {
             $result = $constraintBuilder->getConstraint($expression, $builder);
             if ($result !== null)
                 return $result;

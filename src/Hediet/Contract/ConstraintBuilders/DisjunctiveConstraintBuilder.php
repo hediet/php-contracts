@@ -5,6 +5,7 @@ namespace Hediet\Contract\ConstraintBuilders;
 use Hediet\Contract\Constraints\DisjunctiveConstraint;
 use Hediet\Contract\Expressions\ExpressionBuilder;
 use PhpParser\Node\Expr;
+use PhpParser\Node\Expr\BinaryOp\BooleanOr;
 
 class DisjunctiveConstraintBuilder extends ConstraintBuilder
 {
@@ -20,7 +21,7 @@ class DisjunctiveConstraintBuilder extends ConstraintBuilder
 
     public function getConstraint(Expr $expression, ExpressionBuilder $builder)
     {
-        if ($expression instanceof Expr\BinaryOp\BooleanOr)
+        if ($expression instanceof BooleanOr)
         {
             $leftConstraint = $this->constraintBuilder->getConstraint($expression->left, $builder);
             $rightConstraint = $this->constraintBuilder->getConstraint($expression->right, $builder);
